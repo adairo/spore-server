@@ -1,0 +1,7 @@
+{
+  "database": {
+    "url": "postgres://postgres:openpassword@localhost:5432/spore-car",
+    "tsconfig": "./tsconfig.json",
+    "migration-filename-format": "utc"
+  }
+}
