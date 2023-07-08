@@ -1,10 +1,14 @@
 import { RequestHandler } from "express";
 import { getValidated } from "../../validate";
-import { CreateUserPayload } from "./users.schema";
+import { CreateUserPayload, LoginPayload } from "./users.schema";
 import { getUserByEmail } from "./users.database";
 import * as database from "./users.database";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+
+// Replace with a TOKEN_KEY env variable
+const createToken = (payload: any) =>
+  jwt.sign(payload, "OSIdn1o8sd7y=A(ShdosdnA?", { expiresIn: "2h" });
 
 export const createUser: RequestHandler = async (req, res) => {
   const { body: data } = getValidated<CreateUserPayload>(req);
@@ -19,34 +23,59 @@ export const createUser: RequestHandler = async (req, res) => {
 
     // Encrypt password
     const encryptedPassword = await bcrypt.hash(data.password, 10);
-    console.log(encryptedPassword);
 
-    // insert the user
-    const user = await database.createUser({
+    // create user on db
+    const createdUser = await database.createUser({
       ...data,
       password: encryptedPassword,
     });
 
-    if (!user) {
+    if (!createdUser) {
       throw new Error("Hubo un problema al crear el usuario");
     }
 
-    const token = jwt.sign(
-      {
-        userId: user.id,
-      },
-      "OSIdn1o8sd7y=A(ShdosdnA?",
-      {
-        expiresIn: "2h",
-      }
-    );
+    const token = createToken({ userId: createdUser.id, role: createdUser.role });
+    // attach signed token to the response
+    createdUser.token = token;
+    res.status(201).json(createdUser);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(500).json({ error: error.message });
+    }
+    throw error;
+  }
+};
 
+export const login: RequestHandler = async (req, res) => {
+  const { body: data } = getValidated<LoginPayload>(req);
+
+  try {
+    const user = await getUserByEmail(data.email);
+    if (!user) {
+      const error = new Error("Este usuario no existe");
+      error.name = "UserNotFound";
+      throw error;
+    }
+
+    const doPasswordsMatch = await bcrypt.compare(data.password, user.password);
+    if (!doPasswordsMatch) {
+      const error = new Error("Credenciales incorrectas");
+      error.name = "InvalidCredentials";
+      throw error;
+    }
+
+    const token = createToken({ userId: user.id });
     user.token = token;
+    delete user.password; // remove password from response
     res.status(200).json(user);
   } catch (error) {
     if (error instanceof Error) {
-      res.status(500).json({ error: error.message });
+      let status = 500;
+      if (error.name === "UserNotFound") status = 404;
+      else if (error.name === "InvalidCredential") status = 400;
+      res.status(status).json({ error: error.message });
     }
+
     throw error;
   }
 };

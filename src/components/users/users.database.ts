@@ -5,7 +5,8 @@ export async function getUserByEmail(email: string): DBReturn {
     SELECT
       id,
       email,
-      role
+      role,
+      password
     FROM
       users
     WHERE
@@ -22,10 +23,15 @@ type NewUserData = {
   role: "admin" | "regular";
 };
 
+/**
+ * 
+ * @param userData 
+ * @returns an object with the id of the created user
+ */
 export async function createUser(userData: NewUserData): DBReturn {
   const result = await sql`
     INSERT INTO users ${sql(userData, "email", "password", "role")}
-    RETURNING id
+    RETURNING id, role
   `;
 
   const [user] = result;
