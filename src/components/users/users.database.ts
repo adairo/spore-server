@@ -31,7 +31,7 @@ type NewUserData = {
 export async function createUser(userData: NewUserData): DBReturn {
   const result = await sql`
     INSERT INTO users ${sql(userData, "email", "password", "role")}
-    RETURNING id, role
+    RETURNING id, role, email
   `;
 
   const [user] = result;

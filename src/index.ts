@@ -2,6 +2,7 @@ import express from "express";
 import config from "config";
 import usersRouter from "./components/users/users.router";
 import cors, { CorsOptions } from "cors";
+import carsRouter from "./components/cars/cars.router";
 
 const corsOptions: CorsOptions = {
   origin: "http://localhost:5173",
@@ -16,6 +17,7 @@ app.use(express.json());
 const PORT = config.get("server.port") ?? 3001;
 
 app.use("/users", usersRouter);
+app.use("/cars", carsRouter)
 
 app.listen(PORT, () => {
   console.log(`Server started at port ${PORT}`);

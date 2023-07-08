@@ -34,10 +34,14 @@ export const createUser: RequestHandler = async (req, res) => {
       throw new Error("Hubo un problema al crear el usuario");
     }
 
-    const token = createToken({ userId: createdUser.id, role: createdUser.role });
+    const token = createToken({
+      id: createdUser.id,
+      role: createdUser.role,
+      email: createdUser.email,
+    });
     // attach signed token to the response
-    createdUser.token = token;
-    res.status(201).json(createdUser);
+
+    res.status(201).json({ token });
   } catch (error) {
     if (error instanceof Error) {
       return res.status(500).json({ error: error.message });
@@ -64,18 +68,15 @@ export const login: RequestHandler = async (req, res) => {
       throw error;
     }
 
-    const token = createToken({ userId: user.id });
-    user.token = token;
-    delete user.password; // remove password from response
-    res.status(200).json(user);
+    const token = createToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
+    res.status(200).json({ token });
   } catch (error) {
-    if (error instanceof Error) {
-      let status = 500;
-      if (error.name === "UserNotFound") status = 404;
-      else if (error.name === "InvalidCredential") status = 400;
-      res.status(status).json({ error: error.message });
+    if (error && typeof error === "object" && "message" in error) {
+      return res.status(500).json({ error: error.message });
     }
-
-    throw error;
   }
 };
