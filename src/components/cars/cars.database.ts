@@ -1,6 +1,20 @@
 import { sql } from "../../db";
 import { Car } from "./cars.schema";
 
+const positionRegex = /\((-?\d+\.\d+),(-?\d+\.\d+)\)/;
+
+const parsePosition = (position: string) => {
+  const parsed = position.match(positionRegex);
+  if (!parsed) {
+    throw new Error("Invalid position");
+  }
+
+  return {
+    lattitude: Number(parsed[1]),
+    longitude: Number(parsed[2]),
+  };
+};
+
 export async function getCars() {
   return sql`
       SELECT
@@ -10,12 +24,15 @@ export async function getCars() {
         model,
         color,
         "userId" as ownerId,
-        u.email as ownerEmail
+        u.email as ownerEmail,
+        position
       FROM
         cars c
       INNER JOIN users u
         ON "userId" = u.id
-    `;
+    `.then((cars) =>
+    cars.map((car) => ({ ...car, position: parsePosition(car.position) })) // postgres returns a position as string...
+  );
 }
 
 export async function getCarsByOwnerId(ownerId: number) {
@@ -25,11 +42,14 @@ export async function getCarsByOwnerId(ownerId: number) {
         plate, 
         vendor,
         model,
-        color
+        color,
+        position
       FROM
         cars
       WHERE "userId" = ${ownerId}
-    `;
+    `.then((cars) =>
+    cars.map((car) => ({ ...car, position: parsePosition(car.position) }))
+  );
 }
 
 export async function registerCar(carData: Omit<Car, "id">) {
