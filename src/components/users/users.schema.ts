@@ -13,9 +13,10 @@ export const createUserSchema = z.object({
 
 // the same schema of createUserShchema but without "role"
 export const loginSchema = z.object({
-  body: createUserSchema.shape.body.omit({role: true})
+  body: createUserSchema.shape.body.omit({ role: true }),
 });
 
 export type CreateUserPayload = z.infer<typeof createUserSchema>;
+type UserRole = CreateUserPayload["body"]["role"];
 export type LoginPayload = z.infer<typeof loginSchema>;
-
+export type UserToken = { id: number; email: string; role: UserRole };

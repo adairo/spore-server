@@ -4,11 +4,8 @@ import { CreateUserPayload, LoginPayload } from "./users.schema";
 import { getUserByEmail } from "./users.database";
 import * as database from "./users.database";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { createToken } from "../../lib/auth";
 
-// Replace with a TOKEN_KEY env variable
-const createToken = (payload: any) =>
-  jwt.sign(payload, "OSIdn1o8sd7y=A(ShdosdnA?", { expiresIn: "2h" });
 
 export const createUser: RequestHandler = async (req, res) => {
   const { body: data } = getValidated<CreateUserPayload>(req);
@@ -39,7 +36,6 @@ export const createUser: RequestHandler = async (req, res) => {
       role: createdUser.role,
       email: createdUser.email,
     });
-    // attach signed token to the response
 
     res.status(201).json({ token });
   } catch (error) {
@@ -73,6 +69,7 @@ export const login: RequestHandler = async (req, res) => {
       email: user.email,
       role: user.role,
     });
+    
     res.status(200).json({ token });
   } catch (error) {
     if (error && typeof error === "object" && "message" in error) {
