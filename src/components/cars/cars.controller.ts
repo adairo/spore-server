@@ -1,6 +1,6 @@
 import { getValidated } from "../../validate";
 import type { Response } from "express";
-import { CarRegisterPayload } from "./cars.schema";
+import { CarEditPayload, CarRegisterPayload } from "./cars.schema";
 import * as database from "./cars.database";
 import { ProtectedRequest } from "../../lib/auth";
 import { PostgresError } from "postgres";
@@ -42,5 +42,28 @@ export async function getCars(req: ProtectedRequest, res: Response) {
     }
 
     throw error;
+  }
+}
+
+export async function editCar(req: ProtectedRequest, res: Response) {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new Error("No se pudo identificar al usuario");
+    }
+
+    const {
+      body: data,
+      params: { carId },
+    } = getValidated<CarEditPayload>(req);
+
+    await database.editCar(carId, data);
+    res.status(200).json({ message: "Información actualizada correctamente" });
+  } catch (error) {
+    if (error instanceof PostgresError) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    throw error
   }
 }

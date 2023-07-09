@@ -9,9 +9,15 @@ const carSchema = z.object({
   userId: z.number(),
 });
 
-export const carRegister = z.object({
-  body: carSchema.omit({ id: true, userId: true }),
+export const createCarSchema = z.object({
+  body: carSchema.omit({ id: true, userId: true }).strict(),
+});
+
+export const editCarSchema = z.object({
+  params: z.object({ carId: z.coerce.number() }),
+  body: carSchema.omit({ id: true, userId: true }).strict().partial(),
 });
 
 export type Car = z.infer<typeof carSchema>;
-export type CarRegisterPayload = z.infer<typeof carRegister>;
+export type CarRegisterPayload = z.infer<typeof createCarSchema>;
+export type CarEditPayload = z.infer<typeof editCarSchema>;

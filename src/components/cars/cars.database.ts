@@ -1,5 +1,5 @@
 import { sql } from "../../db";
-import { Car } from "./cars.schema";
+import { Car, CarEditPayload } from "./cars.schema";
 
 const positionRegex = /\((-?\d+\.\d+),(-?\d+\.\d+)\)/;
 
@@ -30,8 +30,9 @@ export async function getCars() {
         cars c
       INNER JOIN users u
         ON "userId" = u.id
-    `.then((cars) =>
-    cars.map((car) => ({ ...car, position: parsePosition(car.position) })) // postgres returns a position as string...
+    `.then(
+    (cars) =>
+      cars.map((car) => ({ ...car, position: parsePosition(car.position) })) // postgres returns a position as string...
   );
 }
 
@@ -67,4 +68,14 @@ export async function registerCar(carData: Omit<Car, "id">) {
 
   const [car] = result;
   return car;
+}
+
+export async function editCar(carId: number, carData: CarEditPayload["body"]) {
+  return sql`
+    UPDATE 
+      cars 
+    SET ${sql(carData)} -- dynamic columns update
+    WHERE
+      id = ${carId}
+  `;
 }

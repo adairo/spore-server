@@ -4,6 +4,8 @@ import config from "config";
 import { UserToken } from "../components/users/users.schema";
 
 const TOKEN_KEY = config.get<string>("auth.token_key");
+export const createToken = (payload: any) =>
+  jwt.sign(payload, TOKEN_KEY, { expiresIn: "2h" });
 const verifyToken = (token: string) =>
   jwt.verify(token, TOKEN_KEY) as UserToken;
 
@@ -18,7 +20,7 @@ export const auth = (
 ) => {
   const token = req.headers["authorization"];
   if (!token) {
-    return res.status(403).json({ error: "Permiso denegado" });
+    return res.status(403).json({ error: "No se proporcionaron credenciales" });
   }
   try {
     const user = verifyToken(token);
@@ -28,7 +30,3 @@ export const auth = (
     res.status(403).json({ error: "Permiso denegado" });
   }
 };
-
-// Replace with a TOKEN_KEY env variable
-export const createToken = (payload: any) =>
-  jwt.sign(payload, TOKEN_KEY, { expiresIn: "2h" });

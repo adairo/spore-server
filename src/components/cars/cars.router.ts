@@ -8,10 +8,16 @@ const carsRouter = express.Router();
 carsRouter.post(
   "/",
   auth,
-  validate(schema.carRegister),
+  validate(schema.createCarSchema),
   controller.registerCar
 );
 
 carsRouter.get("/", auth, controller.getCars);
+carsRouter.patch(
+  "/:carId",
+  auth,
+  validate(schema.editCarSchema),
+  controller.editCar
+);
 
 export default carsRouter;
