@@ -2,22 +2,34 @@ import { sql } from "../../db";
 import { Car } from "./cars.schema";
 
 export async function getCars() {
-  const cars = sql`
+  return sql`
       SELECT
-        id,
+        c.id,
         plate,
         vendor,
         model,
         color,
-        userId as ownerId
+        "userId" as ownerId,
         u.email as ownerEmail
       FROM
-        cars
+        cars c
       INNER JOIN users u
-        ON ownerId = u.id
+        ON "userId" = u.id
     `;
+}
 
-  return cars;
+export async function getCarsByOwnerId(ownerId: number) {
+  return sql`
+      SELECT
+        id, 
+        plate, 
+        vendor,
+        model,
+        color
+      FROM
+        cars
+      WHERE "userId" = ${ownerId}
+    `;
 }
 
 export async function registerCar(carData: Omit<Car, "id">) {

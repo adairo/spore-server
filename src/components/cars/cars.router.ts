@@ -12,4 +12,6 @@ carsRouter.post(
   controller.registerCar
 );
 
+carsRouter.get("/", auth, controller.getCars);
+
 export default carsRouter;

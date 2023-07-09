@@ -8,7 +8,7 @@ const verifyToken = (token: string) =>
   jwt.verify(token, TOKEN_KEY) as UserToken;
 
 export interface ProtectedRequest extends Request {
-  user: UserToken;
+  user?: UserToken;
 }
 
 export const auth = (
