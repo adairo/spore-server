@@ -7,7 +7,7 @@ SporeCar es una aplicación web que lleva el control de un grupo de usuarios y s
 
 ## Iniciar la aplicación
 
-La aplicación está dividida en dos repositorios distintos, uno para el cliente y otro para el servidor. A continuación se presentan las instrucciones para iniciar el servidor. Para conocer las instrucciones del cliente visita el repositorio https://github.com/adairo/client-spore.
+La aplicación está dividida en dos repositorios distintos, uno para el cliente y otro para el servidor. A continuación se presentan las instrucciones para iniciar el servidor. Para conocer las instrucciones del cliente visita el [repositorio del cliente](https://github.com/adairo/spore-client)
 
 ### Requisitos
 
