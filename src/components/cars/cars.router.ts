@@ -27,4 +27,11 @@ carsRouter.patch(
   controller.updatePosition
 );
 
+carsRouter.delete(
+  "/:carId",
+  auth,
+  validate(schema.deleteCar),
+  controller.deleteCar
+)
+
 export default carsRouter;

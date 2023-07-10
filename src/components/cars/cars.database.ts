@@ -92,7 +92,7 @@ export async function registerCar(carData: Omit<Car, "id">) {
   return car;
 }
 
-export async function editCar(carId: number, carData: CarEditPayload["body"]) {
+export function editCar(carId: number, carData: CarEditPayload["body"]) {
   return sql`
     UPDATE 
       cars 
@@ -102,7 +102,7 @@ export async function editCar(carId: number, carData: CarEditPayload["body"]) {
   `;
 }
 
-export async function updatePosition(
+export function updatePosition(
   carId: number,
   position: UpdateCarPositionPayload["query"]
 ) {
@@ -111,6 +111,15 @@ export async function updatePosition(
       cars
     SET
       position = point(${position.lattitude},${position.longitude})
+    WHERE
+      id = ${carId}
+  `;
+}
+
+export function deleteCar(carId: number) {
+  return sql`
+    DELETE
+      FROM cars
     WHERE
       id = ${carId}
   `;

@@ -1,6 +1,6 @@
 import { getValidated } from "../../validate";
 import type { Response } from "express";
-import { CarEditPayload, CarRegisterPayload, UpdateCarPositionPayload } from "./cars.schema";
+import { CarEditPayload, CarRegisterPayload, DeleteCarPayload, UpdateCarPositionPayload } from "./cars.schema";
 import * as database from "./cars.database";
 import { ProtectedRequest } from "../../lib/auth";
 import { PostgresError } from "postgres";
@@ -92,6 +92,37 @@ export async function updatePosition(req: ProtectedRequest, res: Response) {
 
     await database.updatePosition(carId, newPosition)
     res.status(201).json({message: "Ubicación actualizada"})
+  }
+  catch(error) {
+    if (error instanceof PostgresError) {
+      return res.status(500).json({error: error.message})
+    }
+
+    throw error
+  }
+}
+
+export async function deleteCar(req: ProtectedRequest, res: Response) {
+  try {
+    const user = req.user;
+    if (!user) {
+      throw new Error("No se puede acceder al usuario")
+    }
+    const {params: {carId}} = getValidated<DeleteCarPayload>(req)
+    const car = await database.getCarById(carId)
+
+    if (!car) {
+      throw new Error("No se puede eliminar el auto")
+    }
+
+    // Verificar que el usuario haciendo el request es el dueño del coche o administrador
+    // @ts-expect-error  car.id no es una propiedad conocida por TS, pero sabemos que está presente
+    if (user.id !== car.owner_id && user.role !== "admin") {
+      throw new Error("No se cuentan con los permisos necesarios para esta operación")
+    }
+
+    await database.deleteCar(carId)
+    res.status(201).json({message: "Automóvil eliminado con éxito"})
   }
   catch(error) {
     if (error instanceof PostgresError) {

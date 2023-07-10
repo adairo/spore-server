@@ -27,7 +27,12 @@ export const updatePosition = z.object({
   }),
 });
 
-export type UpdateCarPositionPayload = z.infer<typeof updatePosition>
+export const deleteCar = z.object({
+  params: carIdSchema,
+});
+
+export type UpdateCarPositionPayload = z.infer<typeof updatePosition>;
 export type Car = z.infer<typeof carSchema>;
 export type CarRegisterPayload = z.infer<typeof createCarSchema>;
 export type CarEditPayload = z.infer<typeof editCarSchema>;
+export type DeleteCarPayload = z.infer<typeof deleteCar>
