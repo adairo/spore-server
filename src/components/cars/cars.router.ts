@@ -20,4 +20,11 @@ carsRouter.patch(
   controller.editCar
 );
 
+carsRouter.patch(
+  "/:carId/updatePosition",
+  auth,
+  validate(schema.updatePosition),
+  controller.updatePosition
+);
+
 export default carsRouter;

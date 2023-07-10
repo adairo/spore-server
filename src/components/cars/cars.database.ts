@@ -1,5 +1,5 @@
 import { sql } from "../../db";
-import { Car, CarEditPayload } from "./cars.schema";
+import { Car, CarEditPayload, UpdateCarPositionPayload } from "./cars.schema";
 
 const positionRegex = /\((-?\d+\.\d+),(-?\d+\.\d+)\)/;
 
@@ -53,6 +53,28 @@ export async function getCarsByOwnerId(ownerId: number) {
   );
 }
 
+export async function getCarById(carId: number) {
+  return sql`
+    SELECT
+      c.id,
+      plate,
+      vendor,
+      model,
+      color,
+      "userId" as owner_id,
+      u.email as owner_email,
+      position
+    FROM
+      cars c
+    INNER JOIN users u
+      ON "userId" = u.id
+    WHERE
+      c.id = ${carId}
+    `
+    .then((cars) => cars[0])
+    .then((car) => ({ ...car, position: parsePosition(car.position) }));
+}
+
 export async function registerCar(carData: Omit<Car, "id">) {
   const result = await sql`
     INSERT INTO cars ${sql(
@@ -75,6 +97,20 @@ export async function editCar(carId: number, carData: CarEditPayload["body"]) {
     UPDATE 
       cars 
     SET ${sql(carData)} -- dynamic columns update
+    WHERE
+      id = ${carId}
+  `;
+}
+
+export async function updatePosition(
+  carId: number,
+  position: UpdateCarPositionPayload["query"]
+) {
+  return sql`
+    UPDATE 
+      cars
+    SET
+      position = point(${position.lattitude},${position.longitude})
     WHERE
       id = ${carId}
   `;
