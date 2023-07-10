@@ -1,9 +1,10 @@
 import { sql } from "../../db";
 import { Car, CarEditPayload, UpdateCarPositionPayload } from "./cars.schema";
 
-const positionRegex = /\((-?\d+\.\d+),(-?\d+\.\d+)\)/;
+const positionRegex = /\((-?\d+\.?\d+),(-?\d+\.?\d+)\)/;
 
 const parsePosition = (position: string) => {
+  console.log(position)
   const parsed = position.match(positionRegex);
   if (!parsed) {
     throw new Error("Invalid position");
