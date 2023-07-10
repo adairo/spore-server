@@ -1,0 +1,13 @@
+{
+  "db": {
+    "url": "postgres://postgres:openpassword@localhost:5432/sporecar",
+    "tsconfig": "./tsconfig.json",
+    "migration-filename-format": "utc"
+  },
+  "server": {
+    "port": "3001"
+  },
+  "auth": {
+    "token_key": "IA667FCxJd27?Lko1BNC89"
+  }
+}
