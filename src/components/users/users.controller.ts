@@ -21,23 +21,17 @@ export const createUser: RequestHandler = async (req, res) => {
     // Encrypt password
     const encryptedPassword = await bcrypt.hash(data.password, 10);
 
-    // create user on db
-    const createdUser = await database.createUser({
+    // create user on db, it only returns its id
+    const newUser = await database.createUser({
       ...data,
       password: encryptedPassword,
     });
 
-    if (!createdUser) {
+    if (!newUser) {
       throw new Error("Hubo un problema al crear el usuario");
     }
 
-    const token = createToken({
-      id: createdUser.id,
-      role: createdUser.role,
-      email: createdUser.email,
-    });
-
-    res.status(201).json({ token });
+    res.status(201).json(newUser);
   } catch (error) {
     if (error instanceof Error) {
       return res.status(500).json({ error: error.message });
